@@ -1,0 +1,79 @@
+#cloud-config
+package_update: true
+package_upgrade: false
+timezone: Europe/Rome
+
+users:
+  - default
+  - name: __ADMIN_USER__
+    gecos: Personal administrator
+    groups: [adm, sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+
+write_files:
+  - path: /home/__ADMIN_USER__/.ssh/authorized_keys
+    owner: __ADMIN_USER__:__ADMIN_USER__
+    permissions: '0600'
+    encoding: b64
+    content: __SSH_KEY_B64__
+  - path: /home/__ADMIN_USER__/.tmux.conf
+    owner: __ADMIN_USER__:__ADMIN_USER__
+    permissions: '0644'
+    encoding: b64
+    content: __TMUX_CONFIG_B64__
+  - path: /run/cloud-init/tailscale-auth-key
+    owner: root:root
+    permissions: '0600'
+    encoding: b64
+    content: __TAILSCALE_KEY_B64__
+  - path: /usr/local/lib/personal-bootstrap.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      admin_user="$1"
+      admin_home="/home/$admin_user"
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        build-essential ca-certificates curl git pkg-config tmux unzip xz-utils \
+        golang-go sudo
+
+      curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+      apt-get install -y --no-install-recommends nodejs
+      corepack enable
+      corepack prepare pnpm@latest --activate
+
+      case "$(dpkg --print-architecture)" in
+        amd64) nvim_arch=x86_64 ;;
+        arm64) nvim_arch=arm64 ;;
+        *) echo "Unsupported Neovim architecture: $(dpkg --print-architecture)" >&2; exit 1 ;;
+      esac
+      nvim_tarball="/tmp/nvim-linux-${nvim_arch}.tar.gz"
+      curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz" -o "$nvim_tarball"
+      rm -rf "/opt/nvim-linux-${nvim_arch}"
+      tar -C /opt -xzf "$nvim_tarball"
+      ln -sfn "/opt/nvim-linux-${nvim_arch}/bin/nvim" /usr/local/bin/nvim
+      rm -f "$nvim_tarball"
+
+      install -d -o "$admin_user" -g "$admin_user" "$admin_home/.config"
+      sudo -u "$admin_user" git clone https://github.com/lentscode/nvim-config "$admin_home/.config/nvim"
+
+      sudo -u "$admin_user" -H bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path'
+
+      curl -fsSL https://tailscale.com/install.sh | sh
+      tailscale_auth_key="$(base64 -d /run/cloud-init/tailscale-auth-key)"
+      if [[ "$tailscale_auth_key" != 'tailscale-not-configured' ]]; then
+        tailscale up --auth-key="$tailscale_auth_key"
+      fi
+      rm -f /run/cloud-init/tailscale-auth-key
+
+runcmd:
+  - [bash, -lc, '/usr/local/lib/personal-bootstrap.sh __ADMIN_USER__']
+
+final_message: 'Personal Ubuntu bootstrap completed after $UPTIME seconds.'
