@@ -2,7 +2,8 @@
 
 This repository produces a `cloud-init` user-data file for a personal Ubuntu
 VM. It creates an SSH-only administrator, installs a development environment,
-sets up Neovim and tmux, and can optionally enrol the machine in Tailscale.
+sets up Neovim and tmux, and can optionally enrol the machine in Tailscale or
+install T3 Code.
 
 ## What it installs
 
@@ -11,30 +12,44 @@ sets up Neovim and tmux, and can optionally enrol the machine in Tailscale.
 - Node.js LTS and pnpm (NodeSource LTS + Corepack)
 - Rust via rustup, for the VM administrator
 - Neovim from the official latest stable Linux archive
-- Tailscale from Tailscale's official install script
 - Your Neovim configuration from `https://github.com/lentscode/nvim-config`
 - The tmux configuration tracked in this repository
 
 ## Render user-data
 
-The renderer deliberately requires an SSH public key and accepts the
-Tailscale key only as an environment variable. Neither belongs in Git.
+The Python renderer deliberately requires an SSH public key argument. Optional
+features are omitted unless their argument or flag is present, so the generated
+file contains only the selected configuration. Secrets do not belong in Git.
 
 ```sh
-SSH_AUTHORIZED_KEY="$(<~/.ssh/id_ed25519.pub)" \
-TAILSCALE_AUTH_KEY="tskey-auth-..." \
-./scripts/render-user-data.sh
+./scripts/render_user_data.py \
+  --ssh-key "$(<~/.ssh/id_ed25519.pub)" \
+  --tailscale "tskey-auth-..." \
+  --t3code
 ```
 
 This writes `user-data.yaml`, which is ignored by Git. Upload that file to
-your VM provider as cloud-init user data. Omit `TAILSCALE_AUTH_KEY` when you
-do not want to enrol the VM; you can render a new file with a fresh ephemeral
-key for every instance.
+your VM provider as cloud-init user data. Use any combination of the feature
+flags below:
+
+- `--tailscale` installs and enrols Tailscale. Omit it to leave
+  Tailscale out. Render a new file with a fresh ephemeral key for every
+  instance.
+- `--t3code` installs T3 Code and the Codex CLI. After connecting to the
+  VM, authenticate with `codex login` and launch T3 Code with `t3`.
+
+For the base profile only:
+
+```sh
+./scripts/render_user_data.py --ssh-key "$(<~/.ssh/id_ed25519.pub)"
+```
 
 The default administrator is `lents`. Override it when rendering if needed:
 
 ```sh
-ADMIN_USER=myname SSH_AUTHORIZED_KEY="$(<~/.ssh/id_ed25519.pub)" ./scripts/render-user-data.sh
+./scripts/render_user_data.py \
+  --admin-user myname \
+  --ssh-key "$(<~/.ssh/id_ed25519.pub)"
 ```
 
 After cloud-init completes, connect with `ssh lents@VM_IP`. Check progress on
@@ -55,4 +70,3 @@ Tell me which of these you want and they can be added to the base profile:
 
 Edit `dotfiles/tmux.conf` here, then render a fresh user-data file. The
 template embeds the tracked file into the VM at provision time.
-
