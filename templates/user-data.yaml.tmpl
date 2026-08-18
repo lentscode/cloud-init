@@ -23,11 +23,7 @@ write_files:
     permissions: '0644'
     encoding: b64
     content: __TMUX_CONFIG_B64__
-  - path: /run/cloud-init/tailscale-auth-key
-    owner: root:root
-    permissions: '0600'
-    encoding: b64
-    content: __TAILSCALE_KEY_B64__
+__OPTIONAL_WRITE_FILES__
   - path: /usr/local/lib/personal-bootstrap.sh
     owner: root:root
     permissions: '0755'
@@ -66,12 +62,7 @@ write_files:
 
       sudo -u "$admin_user" -H bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path'
 
-      curl -fsSL https://tailscale.com/install.sh | sh
-      tailscale_auth_key="$(base64 -d /run/cloud-init/tailscale-auth-key)"
-      if [[ "$tailscale_auth_key" != 'tailscale-not-configured' ]]; then
-        tailscale up --auth-key="$tailscale_auth_key"
-      fi
-      rm -f /run/cloud-init/tailscale-auth-key
+__OPTIONAL_BOOTSTRAP__
 
 runcmd:
   - [bash, -lc, '/usr/local/lib/personal-bootstrap.sh __ADMIN_USER__']
