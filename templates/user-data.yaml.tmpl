@@ -8,7 +8,7 @@ users:
   - name: __ADMIN_USER__
     gecos: Personal administrator
     groups: [adm, sudo]
-    shell: /bin/bash
+    shell: /bin/zsh
     sudo: ALL=(ALL) NOPASSWD:ALL
     lock_passwd: true
 
@@ -37,7 +37,7 @@ __OPTIONAL_WRITE_FILES__
       export DEBIAN_FRONTEND=noninteractive
       apt-get update
       apt-get install -y --no-install-recommends \
-        build-essential ca-certificates curl git pkg-config tmux unzip xz-utils \
+        build-essential ca-certificates curl git pkg-config tmux unzip xz-utils zsh \
         golang-go sudo
 
       curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
@@ -61,6 +61,11 @@ __OPTIONAL_WRITE_FILES__
       sudo -u "$admin_user" git clone https://github.com/lentscode/nvim-config "$admin_home/.config/nvim"
 
       sudo -u "$admin_user" -H bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path'
+
+      sudo -u "$admin_user" -H sh -c \
+        'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+      sed -i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' "$admin_home/.zshrc"
+      chown "$admin_user:$admin_user" "$admin_home/.zshrc"
 
 __OPTIONAL_BOOTSTRAP__
 

@@ -9,6 +9,8 @@ install T3 Code or a reverse-engineering toolchain.
 
 - Build tooling: `build-essential`, Git, curl, unzip, xz, and pkg-config
 - Go (`golang-go` from Ubuntu)
+- Zsh as the administrator's login shell, with Oh My Zsh (installed using its
+  official unattended installer) and the `agnoster` theme
 - Node.js LTS and pnpm (NodeSource LTS + Corepack)
 - Rust via rustup, for the VM administrator
 - Neovim from the official latest stable Linux archive
