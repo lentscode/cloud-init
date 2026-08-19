@@ -49,6 +49,12 @@ def parse_args() -> argparse.Namespace:
         help="Install T3 Code and the Codex CLI for the administrator.",
     )
     parser.add_argument(
+        "--cyber",
+        dest="with_cyber",
+        action="store_true",
+        help="Install reverse-engineering, exploit-development, and emulation tools.",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=DEFAULT_OUTPUT,
@@ -80,6 +86,61 @@ def optional_write_files(args: argparse.Namespace) -> str:
 
 def optional_bootstrap(args: argparse.Namespace) -> str:
     sections: list[str] = []
+    if args.with_cyber:
+        sections.append(
+            "      apt-get install -y --no-install-recommends \\\n"
+            "        binutils binwalk gdb openjdk-25-jdk patchelf \\\n"
+            "        pipx python3-venv qemu-system qemu-user qemu-utils \\\n"
+            "        ruby-full sagemath\n"
+            "\n"
+            "      install -d -o \"$admin_user\" -g \"$admin_user\" \"$admin_home/ctf\"\n"
+            "\n"
+            "      # Keep both GDB extensions available without having them overwrite ~/.gdbinit.\n"
+            "      install -d -o \"$admin_user\" -g \"$admin_user\" \"$admin_home/.local/share\"\n"
+            "      sudo -u \"$admin_user\" -H git clone --depth 1 https://github.com/pwndbg/pwndbg.git \\\n"
+            "        \"$admin_home/.local/share/pwndbg\"\n"
+            "      sudo -u \"$admin_user\" -H bash -lc 'cd \"$HOME/.local/share/pwndbg\" && ./setup.sh'\n"
+            "      touch \"$admin_home/.gdbinit\"\n"
+            "      sed -i '\\|pwndbg/gdbinit.py|d' \"$admin_home/.gdbinit\"\n"
+            "      install -d -o \"$admin_user\" -g \"$admin_user\" \"$admin_home/.local/share/gef\"\n"
+            "      curl -fsSL https://gef.blah.cat/py -o \"$admin_home/.local/share/gef/gef.py\"\n"
+            "      chown \"$admin_user:$admin_user\" \"$admin_home/.local/share/gef/gef.py\"\n"
+            "      printf '%s\\n' '#!/usr/bin/env bash' \\\n"
+            "        'exec gdb -q -ex \"source $HOME/.local/share/pwndbg/gdbinit.py\" \"$@\"' \\\n"
+            "        > /usr/local/bin/gdb-pwndbg\n"
+            "      printf '%s\\n' '#!/usr/bin/env bash' \\\n"
+            "        'exec gdb -q -ex \"source $HOME/.local/share/gef/gef.py\" \"$@\"' \\\n"
+            "        > /usr/local/bin/gdb-gef\n"
+            "      chmod 0755 /usr/local/bin/gdb-pwndbg /usr/local/bin/gdb-gef\n"
+            "      sudo -u \"$admin_user\" -H pipx install ropper\n"
+            "      gem install one_gadget\n"
+            "      printf '%s\\n' 'export PATH=\"$HOME/.local/bin:$PATH\"' \\\n"
+            "        > /etc/profile.d/cyber-tools.sh\n"
+            "\n"
+            "      # Install the current official Ghidra distribution and run its bundled server.\n"
+            "      # The service uses a dedicated no-login account and persistent repositories.\n"
+            "      ghidra_url=\"$(curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | \\\n"
+            "        python3 -c 'import json, sys; release = json.load(sys.stdin); print(next(asset[\"browser_download_url\"] for asset in release[\"assets\"] if asset[\"name\"].endswith(\".zip\") and \"PUBLIC\" in asset[\"name\"]))')\"\n"
+            "      install -d /opt/ghidra /var/lib/ghidra/repositories\n"
+            "      curl -fsSL \"$ghidra_url\" -o /tmp/ghidra.zip\n"
+            "      unzip -q /tmp/ghidra.zip -d /opt/ghidra\n"
+            "      rm -f /tmp/ghidra.zip\n"
+            "      ghidra_dir=\"$(find /opt/ghidra -mindepth 1 -maxdepth 1 -type d -name 'ghidra_*' -print -quit)\"\n"
+            "      test -n \"$ghidra_dir\"\n"
+            "      ln -sfn \"$ghidra_dir\" /opt/ghidra/current\n"
+            "      useradd --system --home /var/lib/ghidra --shell /usr/sbin/nologin ghidra\n"
+            "      java_home=\"$(dirname \"$(dirname \"$(readlink -f \"$(command -v java)\")\")\")\"\n"
+            "      sed -i \\\n"
+            "        -e 's|^ghidra.repositories.dir=.*|ghidra.repositories.dir=/var/lib/ghidra/repositories|' \\\n"
+            "        -e 's|^#wrapper.app.account=.*|wrapper.app.account=ghidra|' \\\n"
+            "        -e \"s|^# GHIDRA_JAVA_HOME=.*|GHIDRA_JAVA_HOME=$java_home|\" \\\n"
+            "        \"$ghidra_dir/server/server.conf\" \"$ghidra_dir/server/ghidraSvr\"\n"
+            "      chown -R ghidra:ghidra /opt/ghidra /var/lib/ghidra\n"
+            "      \"$ghidra_dir/server/svrInstall\"\n"
+            "      printf '%s\\n' '#!/usr/bin/env bash' 'exec /opt/ghidra/current/server/svrAdmin -add \"$1\" --p' \\\n"
+            "        > /usr/local/sbin/ghidra-add-user\n"
+            "      chmod 0755 /usr/local/sbin/ghidra-add-user\n"
+        )
     if args.with_t3code:
         sections.append(
             "      npm install --global @openai/codex t3@latest\n"

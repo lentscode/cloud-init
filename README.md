@@ -3,7 +3,7 @@
 This repository produces a `cloud-init` user-data file for a personal Ubuntu
 VM. It creates an SSH-only administrator, installs a development environment,
 sets up Neovim and tmux, and can optionally enrol the machine in Tailscale or
-install T3 Code.
+install T3 Code or a reverse-engineering toolchain.
 
 ## What it installs
 
@@ -25,7 +25,8 @@ file contains only the selected configuration. Secrets do not belong in Git.
 ./scripts/render_user_data.py \
   --ssh-key "$(<~/.ssh/id_ed25519.pub)" \
   --tailscale "tskey-auth-..." \
-  --t3code
+  --t3code \
+  --cyber
 ```
 
 This writes `user-data.yaml`, which is ignored by Git. Upload that file to
@@ -37,6 +38,16 @@ flags below:
   instance.
 - `--t3code` installs T3 Code and the Codex CLI. After connecting to the
   VM, authenticate with `codex login` and launch T3 Code with `t3`.
+- `--cyber` installs Ghidra, pwndbg, GEF, ropper, one_gadget, patchelf,
+  binutils, binwalk, SageMath, and QEMU. It installs the current official
+  Ghidra release as a service using the `ghidra` account, with repositories at
+  `/var/lib/ghidra/repositories` and private-password authentication enabled.
+  It also creates `/home/<admin-user>/ctf` as the workspace for competitions.
+  Use `gdb-pwndbg` or `gdb-gef` to select a GDB extension. Ghidra Server listens
+  on its default port (`13100`); restrict network access at the VM provider or
+  firewall before exposing it beyond trusted users. Add the first server user
+  after connecting with `sudo ghidra-add-user <username>`; it securely prompts
+  for that user's initial password.
 
 For the base profile only:
 
