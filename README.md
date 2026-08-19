@@ -82,3 +82,9 @@ Tell me which of these you want and they can be added to the base profile:
 
 Edit `dotfiles/tmux.conf` here, then render a fresh user-data file. The
 template embeds the tracked file into the VM at provision time.
+
+Each invocation of the renderer chooses one status-bar background from a
+contrast-checked palette and embeds it in that cloud-init file. Its foreground
+stays white for readable text; the palette is deliberately kept distinct from
+both light and dark terminal backgrounds. Reloading tmux does not change the
+color; render a new user-data file to choose a new one.

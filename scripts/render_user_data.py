@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import re
+import secrets
 import sys
 from pathlib import Path
 
@@ -14,6 +15,18 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TEMPLATE = REPO_ROOT / "templates" / "user-data.yaml.tmpl"
 DEFAULT_OUTPUT = REPO_ROOT / "user-data.yaml"
 USERNAME_PATTERN = re.compile(r"^[a-z_][a-z0-9_-]*$")
+TMUX_STATUS_STYLE_PLACEHOLDER = "__TMUX_STATUS_STYLE__"
+# Each entry keeps a 4.5:1 or greater contrast ratio with white text and is
+# distinct from both light and dark terminal backgrounds.
+TMUX_STATUS_STYLES = (
+    "bg=#008094,fg=white",
+    "bg=#008560,fg=white",
+    "bg=#8260db,fg=white",
+    "bg=#a96700,fg=white",
+    "bg=#c25436,fg=white",
+    "bg=#af5986,fg=white",
+    "bg=#477b9f,fg=white",
+)
 
 
 def base64_encode(value: str | bytes) -> str:
@@ -163,14 +176,19 @@ def optional_bootstrap(args: argparse.Namespace) -> str:
     return "\n".join(sections)
 
 
+def render_tmux_config() -> bytes:
+    config = (REPO_ROOT / "dotfiles" / "tmux.conf").read_text()
+    if config.count(TMUX_STATUS_STYLE_PLACEHOLDER) != 1:
+        raise ValueError("tmux configuration must contain one status-style placeholder.")
+    return config.replace(TMUX_STATUS_STYLE_PLACEHOLDER, secrets.choice(TMUX_STATUS_STYLES)).encode()
+
+
 def render(args: argparse.Namespace) -> str:
     template = DEFAULT_TEMPLATE.read_text()
     replacements = {
         "__ADMIN_USER__": args.admin_user,
         "__SSH_KEY_B64__": base64_encode(args.ssh_authorized_key),
-        "__TMUX_CONFIG_B64__": base64_encode(
-            (REPO_ROOT / "dotfiles" / "tmux.conf").read_bytes()
-        ),
+        "__TMUX_CONFIG_B64__": base64_encode(render_tmux_config()),
         "__OPTIONAL_WRITE_FILES__": optional_write_files(args),
         "__OPTIONAL_BOOTSTRAP__": optional_bootstrap(args),
     }
