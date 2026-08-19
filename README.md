@@ -43,9 +43,10 @@ flags below:
   Ghidra release as a service using the `ghidra` account, with repositories at
   `/var/lib/ghidra/repositories` and private-password authentication enabled.
   It also creates `/home/<admin-user>/ctf` as the workspace for competitions.
-  Use `gdb-pwndbg` or `gdb-gef` to select a GDB extension. Ghidra Server listens
-  on its default port (`13100`); restrict network access at the VM provider or
-  firewall before exposing it beyond trusted users. Add the first server user
+  Use `ghidra`, `pwndbg`, or `gef` directly from your shell; the latter two start
+  GDB with the corresponding extension. Ghidra Server listens on its default port
+  (`13100`); restrict network access at the VM provider or firewall before exposing
+  it beyond trusted users. Add the first server user
   after connecting with `sudo ghidra-add-user <username>`; it securely prompts
   for that user's initial password.
 
