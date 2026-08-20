@@ -46,8 +46,8 @@ flags below:
 - `--cyber` installs Ghidra, pwndbg, GEF, ropper, one_gadget, patchelf,
   binutils, binwalk, SageMath, and QEMU. SageMath is installed for the
   administrator from conda-forge in the `sage` environment, following the
-  [SageMath installation guide](https://github.com/sagemath/sage/blob/develop/src/doc/en/installation/index.rst);
-  new Zsh sessions activate it automatically, so run `sage` directly. It installs
+  [SageMath installation guide](https://github.com/sagemath/sage/blob/develop/src/doc/en/installation/index.rst).
+  Activate it when needed with `eval "$(~/miniforge3/bin/conda shell.zsh hook)" && conda activate sage`. It installs
   the current official Ghidra release as a service using the `ghidra` account, with repositories at
   `/var/lib/ghidra/repositories` and private-password authentication enabled.
   It also creates `/home/<admin-user>/ctf` as the workspace for competitions.
