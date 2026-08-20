@@ -13,6 +13,7 @@ install T3 Code or a reverse-engineering toolchain.
   official unattended installer) and the `agnoster` theme
 - Node.js LTS (NodeSource) and pnpm (its official standalone installer)
 - Rust via rustup, for the VM administrator
+- Zsh `PATH` entries for user-installed tools: `~/.local/bin`, pnpm, and Cargo
 - Neovim from the official latest stable Linux archive
 - Your Neovim configuration from `https://github.com/lentscode/nvim-config`
 - The tmux configuration tracked in this repository
