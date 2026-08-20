@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import json
 import re
 import secrets
 import sys
@@ -187,7 +188,9 @@ def render(args: argparse.Namespace) -> str:
     template = DEFAULT_TEMPLATE.read_text()
     replacements = {
         "__ADMIN_USER__": args.admin_user,
-        "__SSH_KEY_B64__": base64_encode(args.ssh_authorized_key),
+        # JSON string syntax is valid YAML and safely preserves every character
+        # permitted in a single-line OpenSSH authorized-key entry.
+        "__SSH_AUTHORIZED_KEY_YAML__": json.dumps(args.ssh_authorized_key),
         "__TMUX_CONFIG_B64__": base64_encode(render_tmux_config()),
         "__OPTIONAL_WRITE_FILES__": optional_write_files(args),
         "__OPTIONAL_BOOTSTRAP__": optional_bootstrap(args),
