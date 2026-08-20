@@ -66,6 +66,10 @@ __OPTIONAL_WRITE_FILES__
         'export PNPM_HOME="$HOME/.local/share/pnpm"' \
         'export PATH="$HOME/.local/bin:$PNPM_HOME:$PATH"' \
         '[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"' \
+        '# Start tmux for interactive SSH logins, but not shells inside tmux.' \
+        'if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then' \
+        '  exec tmux' \
+        'fi' \
         >> "$admin_home/.zshrc"
       chown "$admin_user:$admin_user" "$admin_home/.zshrc"
 
