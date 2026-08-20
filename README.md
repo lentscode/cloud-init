@@ -41,8 +41,11 @@ flags below:
 - `--t3code` installs T3 Code and the Codex CLI. After connecting to the
   VM, authenticate with `codex login` and launch T3 Code with `t3`.
 - `--cyber` installs Ghidra, pwndbg, GEF, ropper, one_gadget, patchelf,
-  binutils, binwalk, SageMath, and QEMU. It installs the current official
-  Ghidra release as a service using the `ghidra` account, with repositories at
+  binutils, binwalk, SageMath, and QEMU. SageMath is installed for the
+  administrator from conda-forge in the `sage` environment, following the
+  [SageMath installation guide](https://github.com/sagemath/sage/blob/develop/src/doc/en/installation/index.rst);
+  new Zsh sessions activate it automatically, so run `sage` directly. It installs
+  the current official Ghidra release as a service using the `ghidra` account, with repositories at
   `/var/lib/ghidra/repositories` and private-password authentication enabled.
   It also creates `/home/<admin-user>/ctf` as the workspace for competitions.
   Use `ghidra`, `pwndbg`, or `gef` directly from your shell; the latter two start
