@@ -169,9 +169,8 @@ def optional_bootstrap(args: argparse.Namespace) -> str:
         )
     if args.tailscale_auth_key:
         sections.append(
-            "      curl -fsSL https://tailscale.com/install.sh | sh\n"
-            "      tailscale_auth_key=\"$(base64 -d /run/cloud-init/tailscale-auth-key)\"\n"
-            "      tailscale up --auth-key=\"$tailscale_auth_key\"\n"
+            "      curl -fsSL https://tailscale.com/install.sh | sh && \\\n"
+            "        sudo tailscale up --auth-key=\"$(base64 -d /run/cloud-init/tailscale-auth-key)\"\n"
             "      rm -f /run/cloud-init/tailscale-auth-key\n"
         )
     return "\n".join(sections)
