@@ -61,6 +61,12 @@ __OPTIONAL_WRITE_FILES__
       sudo -u "$admin_user" -H sh -c \
         'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
       sed -i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' "$admin_home/.zshrc"
+      printf '%s\n' \
+        '# User-installed CLI tools.' \
+        'export PNPM_HOME="$HOME/.local/share/pnpm"' \
+        'export PATH="$HOME/.local/bin:$PNPM_HOME:$PATH"' \
+        '[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"' \
+        >> "$admin_home/.zshrc"
       chown "$admin_user:$admin_user" "$admin_home/.zshrc"
 
       # pnpm's standalone installer is the upstream-recommended Linux method.
