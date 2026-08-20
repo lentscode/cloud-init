@@ -11,18 +11,16 @@ users:
     shell: /bin/zsh
     sudo: ALL=(ALL) NOPASSWD:ALL
     lock_passwd: true
+    ssh_authorized_keys:
+      - __SSH_AUTHORIZED_KEY_YAML__
 
 write_files:
-  - path: /home/__ADMIN_USER__/.ssh/authorized_keys
-    owner: __ADMIN_USER__:__ADMIN_USER__
-    permissions: '0600'
-    encoding: b64
-    content: __SSH_KEY_B64__
   - path: /home/__ADMIN_USER__/.tmux.conf
     owner: __ADMIN_USER__:__ADMIN_USER__
     permissions: '0644'
     encoding: b64
     content: __TMUX_CONFIG_B64__
+    defer: true
 __OPTIONAL_WRITE_FILES__
   - path: /usr/local/lib/personal-bootstrap.sh
     owner: root:root
