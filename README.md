@@ -11,7 +11,7 @@ install T3 Code or a reverse-engineering toolchain.
 - Go (`golang-go` from Ubuntu)
 - Zsh as the administrator's login shell, with Oh My Zsh (installed using its
   official unattended installer) and the `agnoster` theme
-- Node.js LTS and pnpm (NodeSource LTS + Corepack)
+- Node.js LTS (NodeSource) and pnpm (its official standalone installer)
 - Rust via rustup, for the VM administrator
 - Neovim from the official latest stable Linux archive
 - Your Neovim configuration from `https://github.com/lentscode/nvim-config`
@@ -38,8 +38,10 @@ flags below:
 - `--tailscale` installs and enrols Tailscale. Omit it to leave
   Tailscale out. Render a new file with a fresh ephemeral key for every
   instance.
-- `--t3code` installs T3 Code and the Codex CLI. After connecting to the
-  VM, authenticate with `codex login` and launch T3 Code with `t3`.
+- `--t3code` installs the Codex CLI using OpenAI's Linux installer and adds a
+  `t3` launcher that runs T3 Code through its official `npx` method. After
+  connecting to the VM, authenticate with `codex login` and launch T3 Code
+  with `t3`.
 - `--cyber` installs Ghidra, pwndbg, GEF, ropper, one_gadget, patchelf,
   binutils, binwalk, SageMath, and QEMU. SageMath is installed for the
   administrator from conda-forge in the `sage` environment, following the
