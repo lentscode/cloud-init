@@ -57,6 +57,8 @@ flags below:
   it beyond trusted users. Add the first server user
   after connecting with `sudo ghidra-add-user <username>`; it securely prompts
   for that user's initial password.
+  Ropper is installed in an isolated `pipx` environment using the compatible
+  pure-Python `filebytes` wheel, which also supports Ubuntu 26.04's Python 3.14.
 
 For the base profile only:
 
