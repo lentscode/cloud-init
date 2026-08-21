@@ -1,2 +1,3 @@
 user-data.yaml
 scripts/__pycache__/
+tests/.seed/

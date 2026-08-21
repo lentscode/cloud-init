@@ -98,3 +98,22 @@ contrast-checked palette and embeds it in that cloud-init file. Its foreground
 stays white for readable text; the palette is deliberately kept distinct from
 both light and dark terminal backgrounds. Reloading tmux does not change the
 color; render a new user-data file to choose a new one.
+
+## Docker integration test
+
+The base profile can be provisioned in a disposable Ubuntu container using
+cloud-init's NoCloud datasource. This is an integration test for the rendered
+configuration, rather than a replacement for a final VM-provider test.
+
+```sh
+chmod +x tests/run-docker-cloud-init.sh
+./tests/run-docker-cloud-init.sh
+```
+
+It builds `tests/Dockerfile`, renders a fresh user-data file into a temporary
+NoCloud seed, boots systemd and cloud-init, and verifies the administrator,
+tmux file, Neovim, Neovim configuration, Zsh configuration, and sudo policy.
+It requires a Linux Docker host because systemd is run with a privileged
+container and a cgroup mount. The default test does not enable Tailscale,
+T3 Code, or the cyber toolchain: those options require external credentials or
+substantially longer, network-dependent provisioning.
