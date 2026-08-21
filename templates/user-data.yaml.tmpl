@@ -41,6 +41,20 @@ __OPTIONAL_WRITE_FILES__
       curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
       apt-get install -y --no-install-recommends nodejs
 
+      # Install Docker Engine and its plugins from Docker's official apt repository.
+      install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+      . /etc/os-release
+      printf '%s\n' \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME:-$VERSION_CODENAME} stable" \
+        > /etc/apt/sources.list.d/docker.list
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        containerd.io docker-buildx-plugin docker-ce docker-ce-cli docker-compose-plugin
+      groupadd --force docker
+      usermod -aG docker "$admin_user"
+
       case "$(dpkg --print-architecture)" in
         amd64) nvim_arch=x86_64 ;;
         arm64) nvim_arch=arm64 ;;
