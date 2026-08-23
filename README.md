@@ -7,7 +7,7 @@ install T3 Code or a reverse-engineering toolchain.
 
 ## What it installs
 
-- Build tooling: `build-essential`, `cloc`, Git, curl, unzip, xz, and pkg-config
+- Build tooling: `build-essential`, `cloc`, `fzf`, Git, curl, unzip, xz, and pkg-config
 - Go (`golang-go` from Ubuntu)
 - Zsh as the administrator's login shell, with Oh My Zsh (installed using its
   official unattended installer) and the `agnoster` theme
