@@ -12,6 +12,9 @@ install T3 Code or a reverse-engineering toolchain.
 - Zsh as the administrator's login shell, with Oh My Zsh (installed using its
   official unattended installer) and the `agnoster` theme
 - Node.js LTS (NodeSource) and pnpm (its official standalone installer)
+- Docker Engine, Buildx, and Docker Compose from Docker's official apt repository;
+  the administrator is added to the `docker` group, so Docker can be used without
+  `sudo` after reconnecting
 - Rust via rustup, for the VM administrator
 - Zsh `PATH` entries for user-installed tools: `~/.local/bin`, pnpm, and Cargo
 - Neovim from the official latest stable Linux archive
@@ -83,7 +86,7 @@ Tell me which of these you want and they can be added to the base profile:
 
 - CLI: `zsh`, `bat`, `fd-find`, `tree`, `htop`, `btop`, `direnv`, `shellcheck`
 - Python: `python3-venv`, `pipx`, `uv`
-- Containers: `docker.io`, Docker Compose plugin, `podman`
+- Containers: `podman`
 - Databases and clients: `postgresql-client`, `redis-tools`, `sqlite3`
 - Infrastructure: `terraform`, `ansible`, `kubectl`, `helm`
 - Build and language tooling: `cmake`, `ninja-build`, `clang`, `protobuf-compiler`, `just`

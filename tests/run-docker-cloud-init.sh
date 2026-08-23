@@ -39,6 +39,9 @@ fi
 docker exec "$container_name" bash -ceu '
   test "$(getent passwd lents | cut -d: -f7)" = /bin/zsh
   id lents | grep -qw sudo
+  id lents | grep -qw docker
+  command -v docker
+  sudo -u lents -H docker compose version
   test -f /home/lents/.tmux.conf
   test -x /usr/local/bin/nvim
   test -d /home/lents/.config/nvim/.git
