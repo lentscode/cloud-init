@@ -42,6 +42,7 @@ docker exec "$container_name" bash -ceu '
   id lents | grep -qw docker
   command -v cloc
   command -v docker
+  command -v fzf
   sudo -u lents -H docker compose version
   test -f /home/lents/.tmux.conf
   test -x /usr/local/bin/nvim
