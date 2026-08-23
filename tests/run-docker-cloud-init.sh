@@ -49,6 +49,7 @@ docker exec "$container_name" bash -ceu '
   test -d /home/lents/.config/nvim/.git
   test -f /home/lents/.zshrc
   grep -Fqx "export PNPM_HOME=\"\$HOME/.local/share/pnpm\"" /home/lents/.zshrc
+  grep -Fqx "alias vim='nvim'" /home/lents/.zshrc
   sudo -l -U lents | grep -Fq "(ALL) NOPASSWD: ALL"
 '
 
