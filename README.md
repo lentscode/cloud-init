@@ -18,6 +18,7 @@ install T3 Code or a reverse-engineering toolchain.
 - Rust via rustup, for the VM administrator
 - Zsh `PATH` entries for user-installed tools: `~/.local/bin`, pnpm, and Cargo
 - Neovim from the official latest stable Linux archive
+- A `vim` alias that opens Neovim
 - Your Neovim configuration from `https://github.com/lentscode/nvim-config`
 - The tmux configuration tracked in this repository
 
@@ -47,11 +48,8 @@ flags below:
   connecting to the VM, authenticate with `codex login` and launch T3 Code
   with `t3`.
 - `--cyber` installs Ghidra, pwndbg, GEF, ropper, one_gadget, patchelf,
-  binutils, binwalk, SageMath, and QEMU. SageMath is installed for the
-  administrator from conda-forge in the `sage` environment, following the
-  [SageMath installation guide](https://github.com/sagemath/sage/blob/develop/src/doc/en/installation/index.rst).
-  Activate it when needed with `eval "$(~/miniforge3/bin/conda shell.zsh hook)" && conda activate sage`. It installs
-  the current official Ghidra release as a service using the `ghidra` account, with repositories at
+  binutils, binwalk, and QEMU. It installs the current official Ghidra release
+  as a service using the `ghidra` account, with repositories at
   `/var/lib/ghidra/repositories` and private-password authentication enabled.
   It also creates `/home/<admin-user>/ctf` as the workspace for competitions.
   Use `ghidra`, `pwndbg`, or `gef` directly from your shell; the latter two start
