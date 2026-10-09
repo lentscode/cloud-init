@@ -21,6 +21,8 @@ install T3 Code or a reverse-engineering toolchain.
 - A `vim` alias that opens Neovim
 - Your Neovim configuration from `https://github.com/lentscode/nvim-config`
 - The tmux configuration tracked in this repository
+- Sesh v2.32.0, zoxide, and `fd-find`, with your shared `s` session picker
+- Tmuxinator from Ubuntu's package repository, including its Ruby dependencies
 
 ## Render user-data
 
@@ -94,6 +96,30 @@ Tell me which of these you want and they can be added to the base profile:
 Edit `dotfiles/tmux.conf` here, then render a fresh user-data file. The
 template embeds the tracked file into the VM at provision time.
 
+The renderer also embeds `dotfiles/s` as `~/.local/bin/s` and
+`dotfiles/sesh.toml` as `~/.config/sesh/sesh.toml`. Interactive SSH logins
+outside tmux open this picker; inside tmux, press the prefix, then `Shift+T`
+to open it in a popup. With the default prefix, that is `Ctrl+B`, then `Shift+T`.
+Cancelling with Escape or `Ctrl+D` returns to the shell without closing SSH.
+SSH commands such as `ssh VM_IP uptime` skip the picker.
+
+Select Home on a fresh VM to create your first session. Later, directory visits
+recorded by zoxide appear in the picker too. You can also run `s ~/my-project`
+to connect directly to a project directory. The picker keeps your local filters
+and preview: `Ctrl+A` for all entries, `Ctrl+T` for tmux, `Ctrl+G` for configured
+sessions, `Ctrl+X` for zoxide, and `Ctrl+F` to search directories under home.
+The search uses Ubuntu's `fdfind` command instead of macOS's `fd`.
+
+Sesh is installed through its [official Go installation method](https://github.com/joshmedeski/sesh#how-to-install),
+with a pinned version so provisioning does not silently switch releases.
+Go downloads a newer toolchain if that version requires it. The executable goes
+in `/usr/local/bin`, making it available to tmux as well as interactive Zsh.
+Zoxide records directory visits without changing the usual `cd` command.
+
+To create a reusable tmux layout, run `EDITOR=nvim tmuxinator new dev` on the VM
+and edit the generated project file. For example, define separate windows for
+your editor, server, and logs, then open that layout with `tmuxinator start dev`.
+
 Each invocation of the renderer chooses one status-bar background from a
 contrast-checked palette and embeds it in that cloud-init file. Its foreground
 stays white for readable text; the palette is deliberately kept distinct from
@@ -113,7 +139,8 @@ chmod +x tests/run-docker-cloud-init.sh
 
 It builds `tests/Dockerfile`, renders a fresh user-data file into a temporary
 NoCloud seed, boots systemd and cloud-init, and verifies the administrator,
-tmux file, Neovim, Neovim configuration, Zsh configuration, and sudo policy.
+tmux binding, sesh installation and Home entry, tmuxinator, picker permissions, Neovim,
+Neovim configuration, Zsh configuration, and sudo policy.
 It requires a Linux Docker host because systemd is run with a privileged
 container and a cgroup mount. The default test does not enable Tailscale,
 T3 Code, or the cyber toolchain: those options require external credentials or

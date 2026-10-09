@@ -196,6 +196,8 @@ def render(args: argparse.Namespace) -> str:
         # permitted in a single-line OpenSSH authorized-key entry.
         "__SSH_AUTHORIZED_KEY_YAML__": json.dumps(args.ssh_authorized_key),
         "__TMUX_CONFIG_B64__": base64_encode(render_tmux_config()),
+        "__SESH_PICKER_B64__": base64_encode((REPO_ROOT / "dotfiles" / "s").read_bytes()),
+        "__SESH_CONFIG_B64__": base64_encode((REPO_ROOT / "dotfiles" / "sesh.toml").read_bytes()),
         "__OPTIONAL_WRITE_FILES__": optional_write_files(args),
         "__OPTIONAL_BOOTSTRAP__": optional_bootstrap(args),
     }

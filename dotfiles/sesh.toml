@@ -1,0 +1,4 @@
+# Give a freshly provisioned VM a destination before zoxide has any history.
+[[session]]
+name = "Home"
+path = "~"

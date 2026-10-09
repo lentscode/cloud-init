@@ -6,7 +6,7 @@ ENV container=docker
 # run-docker-cloud-init.sh at /var/lib/cloud/seed/nocloud.
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      cloud-init dbus lsb-release systemd systemd-sysv sudo \
+      cloud-init dbus lsb-release openssh-server systemd systemd-sysv sudo \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && printf '%s\n' \
