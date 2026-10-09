@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# Report failures from either side of the list-to-picker pipeline.
+set -o pipefail
+
+# Connect directly when given a session name or directory.
+if (( $# )); then
+  exec sesh connect "$1"
+fi
+
+# Capture the chosen row. Quoting "$selection" below preserves spaces in names.
+# Inside tmux, -p opens a popup. Outside tmux, fzf-tmux runs regular fzf.
+if selection=$(
+  sesh list --icons | fzf-tmux -p 80%,70% \
+    --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
+    --header '  ^a all ^t tmux ^g configs ^x zoxide ^d exit ^f find' \
+    --bind 'tab:down,btab:up' \
+    --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
+    --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
+    --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
+    --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+    --bind 'ctrl-f:change-prompt(🔎  )+reload(fdfind -H -d 2 -t d -E .Trash . ~)' \
+    --bind 'ctrl-d:abort' \
+    --preview-window 'right:55%' \
+    --preview 'sesh preview {}'
+); then
+  # An empty selection should simply return to the calling shell.
+  [[ -n "$selection" ]] || exit 0
+
+  # Replace this script's process with sesh, which attaches or switches sessions.
+  exec sesh connect "$selection"
+else
+  picker_status=$?
+
+  # fzf returns 1 for no match and 130 for Escape or Ctrl+C.
+  # Treat those as normal cancellation, but preserve other errors.
+  case "$picker_status" in
+    1|130) exit 0 ;;
+    *) exit "$picker_status" ;;
+  esac
+fi

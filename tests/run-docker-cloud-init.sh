@@ -32,6 +32,7 @@ docker run --detach --name "$container_name" \
   "$image_name" >/dev/null
 
 if ! docker exec "$container_name" cloud-init status --wait; then
+  docker exec "$container_name" cloud-init status --long >&2 || true
   docker logs "$container_name" >&2 || true
   docker exec "$container_name" tail -200 /var/log/cloud-init-output.log >&2 || true
   exit 1
@@ -43,13 +44,27 @@ docker exec "$container_name" bash -ceu '
   command -v cloc
   command -v docker
   command -v fzf
+  command -v fzf-tmux
+  command -v fdfind
+  command -v zoxide
+  sesh --version
+  sudo -u lents -H tmuxinator version
+  test -x /home/lents/.local/bin/s
+  sudo -u lents -H sesh list -c | grep -Fqx Home
+  sudo -u lents -H test -w /home/lents/.local/bin
+  sudo -u lents -H zsh -n /home/lents/.zshrc
+  # -c helpers must skip the picker, even with SSH and a terminal present.
+  sudo -u lents -H env SSH_CONNECTION=test zsh -ic true
+  sudo -u lents -H tmux new-session -d -s sesh-smoke
+  sudo -u lents -H tmux list-keys -T prefix T | grep -Fq ".local/bin/s"
+  sudo -u lents -H tmux kill-session -t sesh-smoke
   sudo -u lents -H docker compose version
   test -f /home/lents/.tmux.conf
   test -x /usr/local/bin/nvim
   test -d /home/lents/.config/nvim/.git
   test -f /home/lents/.zshrc
   grep -Fqx "export PNPM_HOME=\"\$HOME/.local/share/pnpm\"" /home/lents/.zshrc
-  grep -Fqx "alias vim='nvim'" /home/lents/.zshrc
+  sudo -u lents -H zsh -ic "alias vim" | grep -Fqx "vim=nvim"
   sudo -l -U lents | grep -Fq "(ALL) NOPASSWD: ALL"
 '
 

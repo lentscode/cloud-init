@@ -21,6 +21,18 @@ write_files:
     encoding: b64
     content: __TMUX_CONFIG_B64__
     defer: true
+  - path: /home/__ADMIN_USER__/.local/bin/s
+    owner: __ADMIN_USER__:__ADMIN_USER__
+    permissions: '0755'
+    encoding: b64
+    content: __SESH_PICKER_B64__
+    defer: true
+  - path: /home/__ADMIN_USER__/.config/sesh/sesh.toml
+    owner: __ADMIN_USER__:__ADMIN_USER__
+    permissions: '0644'
+    encoding: b64
+    content: __SESH_CONFIG_B64__
+    defer: true
 __OPTIONAL_WRITE_FILES__
   - path: /usr/local/lib/personal-bootstrap.sh
     owner: root:root
@@ -32,11 +44,23 @@ __OPTIONAL_WRITE_FILES__
       admin_user="$1"
       admin_home="/home/$admin_user"
 
+      # write_files may create parent directories as root; keep them user-writable.
+      chown "$admin_user:$admin_user" \
+        "$admin_home/.local" "$admin_home/.local/bin" \
+        "$admin_home/.config" "$admin_home/.config/sesh"
+
       export DEBIAN_FRONTEND=noninteractive
       apt-get update
       apt-get install -y --no-install-recommends \
         build-essential ca-certificates cloc curl fzf git pkg-config tmux unzip xz-utils zsh \
-        golang-go sudo
+        fd-find golang-go sudo tmuxinator zoxide
+
+      # Go can download the toolchain required by this pinned sesh version.
+      # A system-wide binary also works in tmux's non-interactive shell.
+      # cloud-init does not always set HOME, so give Go explicit cache paths.
+      GOPATH=/var/cache/sesh-go GOCACHE=/var/cache/sesh-go/build \
+        GOBIN=/usr/local/bin GOTOOLCHAIN=auto \
+        go install github.com/joshmedeski/sesh/v2@v2.32.0
 
       curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
       apt-get install -y --no-install-recommends nodejs
@@ -81,9 +105,13 @@ __OPTIONAL_WRITE_FILES__
         'export PATH="$HOME/.local/bin:$PNPM_HOME:$PATH"' \
         '[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"' \
         "alias vim='nvim'" \
-        '# Start tmux for interactive SSH logins, but not shells inside tmux.' \
-        'if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then' \
-        '  exec tmux' \
+        '# Track directory visits for sesh without replacing cd.' \
+        'eval "$(zoxide init zsh --no-cmd)"' \
+        '# Open the shared picker only for interactive SSH terminals outside tmux.' \
+        'if [[ -o interactive && -t 0 && -t 1 &&' \
+        '      -n ${SSH_CONNECTION:-} && -z ${TMUX:-} &&' \
+        '      -z ${ZSH_EXECUTION_STRING:-} ]]; then' \
+        '  "$HOME/.local/bin/s"' \
         'fi' \
         >> "$admin_home/.zshrc"
       chown "$admin_user:$admin_user" "$admin_home/.zshrc"
