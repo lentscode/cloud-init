@@ -114,6 +114,35 @@ The picker keeps your local filters and preview: `Ctrl+A` for all entries, `Ctrl
 sessions, `Ctrl+X` for zoxide, and `Ctrl+F` to search directories under home.
 The search uses Ubuntu's `fdfind` command instead of macOS's `fd`.
 
+The initial `sesh list` and each sesh list reload have a five-second timeout.
+Ubuntu provisioning explicitly installs `coreutils` for GNU `timeout`. If you
+copy the picker to macOS, install it with `brew install coreutils`; the script
+accepts either `timeout` or `gtimeout`. A missing timeout command reports an
+error rather than silently running an unlimited list. Direct `s directory`
+connections do not need the timeout command.
+
+Only listing status 124, GNU timeout's timeout status, becomes success. Rows
+already printed are kept, and fzf can still accept a selection or cancellation.
+Other listing failures remain errors, including status 1. The initial list is
+collected before fzf starts so its errors cannot be confused with fzf's normal
+no-match or cancellation statuses. Reloads call the picker's internal
+`--picker-list` mode using the script's full path. This works in subprocess
+shells and tmux popups without relying on exported Bash functions being
+present in the tmux server's environment.
+
+This is a limit on the whole list, not on each source. Sesh collects sources
+before printing rows, so one stalled tool can result in an empty picker after
+five seconds. For example, if zoxide stalls, even available tmux sessions may
+not appear; try `Ctrl+T` to list tmux alone. Preserving other sources requires
+a timeout inside sesh, which this repository does not install. The reported
+offline trigger has not been reproduced; SSH listing reads configured hosts
+without contacting them. The pinned sesh v2.32.0 has no `-s`/`--ssh` list flag,
+so there is no `Ctrl+S` binding here.
+
+The timeout never wraps interactive `sesh connect`, which may run as long as
+your session does. Directory search and `sesh preview` remain separate from
+listing and are unchanged; preview has not been identified as the cause.
+
 Sesh is installed through its [official Go installation method](https://github.com/joshmedeski/sesh#how-to-install),
 with a pinned version so provisioning does not silently switch releases.
 Go downloads a newer toolchain if that version requires it. The executable goes
@@ -131,6 +160,16 @@ both light and dark terminal backgrounds. Reloading tmux does not change the
 color; render a new user-data file to choose a new one.
 
 ## Docker integration test
+
+Run the local renderer and picker tests with:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+Picker tests require GNU `timeout` or `gtimeout`. They use fake sesh/fzf
+commands to check stalled listings and reloads, genuine failures, selection
+and cancellation, and connections lasting longer than five seconds.
 
 The base profile can be provisioned in a disposable Ubuntu container using
 cloud-init's NoCloud datasource. This is an integration test for the rendered
