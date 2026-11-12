@@ -100,13 +100,17 @@ The renderer also embeds `dotfiles/s` as `~/.local/bin/s` and
 `dotfiles/sesh.toml` as `~/.config/sesh/sesh.toml`. Interactive SSH logins
 outside tmux open this picker; inside tmux, press the prefix, then `Shift+T`
 to open it in a popup. With the default prefix, that is `Ctrl+B`, then `Shift+T`.
-Cancelling with Escape or `Ctrl+D` returns to the shell without closing SSH.
+The SSH login shell uses `exec` to launch the picker, so ending or detaching
+from tmux closes the SSH connection. Cancelling the initial picker with Escape
+or `Ctrl+D` also closes SSH. Cancelling a picker inside tmux closes its popup.
 SSH commands such as `ssh VM_IP uptime` skip the picker.
 
 Select Home on a fresh VM to create your first session. Later, directory visits
-recorded by zoxide appear in the picker too. You can also run `s ~/my-project`
-to connect directly to a project directory. The picker keeps your local filters
-and preview: `Ctrl+A` for all entries, `Ctrl+T` for tmux, `Ctrl+G` for configured
+recorded by zoxide appear in the picker too. Every interactive Zsh shell defines
+`z` and aliases `cd` to it, so `cd my-project` can jump to a previously visited
+project directory. Use `builtin cd` when you need the original shell command.
+You can also run `s ~/my-project` to connect directly to a project directory.
+The picker keeps your local filters and preview: `Ctrl+A` for all entries, `Ctrl+T` for tmux, `Ctrl+G` for configured
 sessions, `Ctrl+X` for zoxide, and `Ctrl+F` to search directories under home.
 The search uses Ubuntu's `fdfind` command instead of macOS's `fd`.
 

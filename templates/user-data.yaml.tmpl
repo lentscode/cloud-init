@@ -105,13 +105,14 @@ __OPTIONAL_WRITE_FILES__
         'export PATH="$HOME/.local/bin:$PNPM_HOME:$PATH"' \
         '[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"' \
         "alias vim='nvim'" \
-        '# Track directory visits for sesh without replacing cd.' \
-        'eval "$(zoxide init zsh --no-cmd)"' \
+        '# Define z and track directory visits in every interactive Zsh shell.' \
+        'eval "$(zoxide init zsh)"' \
+        "alias cd='z'" \
         '# Open the shared picker only for interactive SSH terminals outside tmux.' \
         'if [[ -o interactive && -t 0 && -t 1 &&' \
         '      -n ${SSH_CONNECTION:-} && -z ${TMUX:-} &&' \
         '      -z ${ZSH_EXECUTION_STRING:-} ]]; then' \
-        '  "$HOME/.local/bin/s"' \
+        '  exec "$HOME/.local/bin/s"' \
         'fi' \
         >> "$admin_home/.zshrc"
       chown "$admin_user:$admin_user" "$admin_home/.zshrc"
