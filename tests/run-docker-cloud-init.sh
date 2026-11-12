@@ -53,6 +53,8 @@ docker exec "$container_name" bash -ceu '
   sudo -u lents -H sesh list -c | grep -Fqx Home
   sudo -u lents -H test -w /home/lents/.local/bin
   sudo -u lents -H zsh -n /home/lents/.zshrc
+  sudo -u lents -H zsh -ic "whence -w z" | grep -Fqx "z: function"
+  sudo -u lents -H zsh -ic "alias cd" | grep -Fqx "cd=z"
   # -c helpers must skip the picker, even with SSH and a terminal present.
   sudo -u lents -H env SSH_CONNECTION=test zsh -ic true
   sudo -u lents -H tmux new-session -d -s sesh-smoke
