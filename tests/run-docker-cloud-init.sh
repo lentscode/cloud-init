@@ -45,6 +45,7 @@ docker exec "$container_name" bash -ceu '
   command -v docker
   command -v fzf
   command -v fzf-tmux
+  command -v timeout
   command -v fdfind
   command -v zoxide
   sesh --version
